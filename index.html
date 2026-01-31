@@ -350,10 +350,6 @@
                     <div class="spectrum" id="guessSpectrum" onclick="makeGuess(event)">
                         <div class="guess-marker" id="guessMarker" style="left: 50%;"></div>
                     </div>
-                    <div class="spectrum-labels">
-                        <span id="guessLeftLabel"></span>
-                        <span id="guessRightLabel"></span>
-                    </div>
                 </div>
                 <button class="btn" onclick="submitGuess()">Submit Guess</button>
             </div>
@@ -504,8 +500,6 @@
             // Set spectrum for guessers
             document.getElementById('guessSpectrumLeft').textContent = gameState.currentSpectrum.left;
             document.getElementById('guessSpectrumRight').textContent = gameState.currentSpectrum.right;
-            document.getElementById('guessLeftLabel').textContent = gameState.currentSpectrum.left;
-            document.getElementById('guessRightLabel').textContent = gameState.currentSpectrum.right;
             document.getElementById('clueDisplay').textContent = `Clue: "${clue}"`;
 
             // Reset guess marker to center
