@@ -368,10 +368,6 @@
                         <div class="target-marker" id="resultTargetMarker"></div>
                         <div class="guess-marker" id="resultGuessMarker" style="background: #28a745;"></div>
                     </div>
-                    <div class="spectrum-labels">
-                        <span id="resultLeftLabel"></span>
-                        <span id="resultRightLabel"></span>
-                    </div>
                 </div>
                 <div id="accuracyFeedback"></div>
                 <button class="btn" onclick="nextRound()">Next Round</button>
@@ -558,8 +554,6 @@
             // Update result display
             document.getElementById('resultSpectrumLeft').textContent = gameState.currentSpectrum.left;
             document.getElementById('resultSpectrumRight').textContent = gameState.currentSpectrum.right;
-            document.getElementById('resultLeftLabel').textContent = gameState.currentSpectrum.left;
-            document.getElementById('resultRightLabel').textContent = gameState.currentSpectrum.right;
             document.getElementById('resultClueDisplay').textContent = `Clue: "${gameState.clue}"`;
 
             const targetMarker = document.getElementById('resultTargetMarker');
