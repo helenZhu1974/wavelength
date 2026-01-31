@@ -111,16 +111,22 @@
         .spectrum-container {
             margin: 40px 0;
             position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            min-height: 400px;
         }
 
         .spectrum {
-            width: 100%;
-            height: 60px;
-            background: linear-gradient(to right, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
-            border-radius: 30px;
+            width: 600px;
+            height: 300px;
             position: relative;
             margin: 20px 0;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .spectrum svg {
+            width: 100%;
+            height: 100%;
         }
 
         .spectrum-labels {
@@ -132,33 +138,23 @@
         }
 
         .target-marker {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: white;
-            border: 3px solid #333;
-            border-radius: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
+            fill: white;
+            stroke: #333;
+            stroke-width: 3;
             display: none;
         }
 
         .guess-marker {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            background: #667eea;
-            border: 3px solid white;
-            border-radius: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
+            fill: #667eea;
+            stroke: white;
+            stroke-width: 3;
             cursor: pointer;
             transition: transform 0.2s;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.3));
         }
 
         .guess-marker:hover {
-            transform: translate(-50%, -50%) scale(1.2);
+            transform: scale(1.2);
         }
 
         .current-team {
@@ -340,7 +336,22 @@
                 </div>
                 <div class="spectrum-container">
                     <div class="spectrum" id="hiddenSpectrum">
-                        <div class="target-marker" id="targetMarker"></div>
+                        <svg viewBox="0 0 600 300" id="hiddenSpectrumSvg">
+                            <defs>
+                                <linearGradient id="spectrumGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
+                                    <stop offset="33%" style="stop-color:#feca57;stop-opacity:1" />
+                                    <stop offset="66%" style="stop-color:#48dbfb;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#ff9ff3;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M 75 300 A 225 225 0 0 1 525 300"
+                                  fill="none"
+                                  stroke="url(#spectrumGradient)"
+                                  stroke-width="60"
+                                  stroke-linecap="round"/>
+                            <circle class="target-marker" id="targetMarker" r="12" cx="300" cy="300"/>
+                        </svg>
                     </div>
                 </div>
                 <p style="margin: 20px 0; font-size: 1.1em;">Give your team a clue about where the target is!</p>
@@ -359,8 +370,23 @@
                 </div>
                 <div class="clue-display" id="clueDisplay">Waiting for clue...</div>
                 <div class="spectrum-container">
-                    <div class="spectrum" id="guessSpectrum" onclick="makeGuess(event)">
-                        <div class="guess-marker" id="guessMarker" style="left: 50%;"></div>
+                    <div class="spectrum" id="guessSpectrum">
+                        <svg viewBox="0 0 600 300" id="guessSpectrumSvg" onclick="makeGuess(event)" style="cursor: pointer;">
+                            <defs>
+                                <linearGradient id="spectrumGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
+                                    <stop offset="33%" style="stop-color:#feca57;stop-opacity:1" />
+                                    <stop offset="66%" style="stop-color:#48dbfb;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#ff9ff3;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M 75 300 A 225 225 0 0 1 525 300"
+                                  fill="none"
+                                  stroke="url(#spectrumGradient2)"
+                                  stroke-width="60"
+                                  stroke-linecap="round"/>
+                            <circle class="guess-marker" id="guessMarker" r="18" cx="300" cy="75"/>
+                        </svg>
                     </div>
                 </div>
                 <button class="btn" onclick="submitGuess()">Submit Guess</button>
@@ -377,8 +403,23 @@
                 <div class="clue-display" id="resultClueDisplay"></div>
                 <div class="spectrum-container">
                     <div class="spectrum" id="resultSpectrum">
-                        <div class="target-marker" id="resultTargetMarker"></div>
-                        <div class="guess-marker" id="resultGuessMarker" style="background: #287da7;"></div>
+                        <svg viewBox="0 0 600 300" id="resultSpectrumSvg">
+                            <defs>
+                                <linearGradient id="spectrumGradient3" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#ff6b6b;stop-opacity:1" />
+                                    <stop offset="33%" style="stop-color:#feca57;stop-opacity:1" />
+                                    <stop offset="66%" style="stop-color:#48dbfb;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#ff9ff3;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M 75 300 A 225 225 0 0 1 525 300"
+                                  fill="none"
+                                  stroke="url(#spectrumGradient3)"
+                                  stroke-width="60"
+                                  stroke-linecap="round"/>
+                            <circle class="target-marker" id="resultTargetMarker" r="12" cx="300" cy="300"/>
+                            <circle class="guess-marker" id="resultGuessMarker" r="18" cx="300" cy="75" style="fill: #287da7;"/>
+                        </svg>
                     </div>
                 </div>
                 <div id="accuracyFeedback"></div>
@@ -405,6 +446,34 @@
     </div>
 
     <script>
+        // Helper function to convert position (0-1) to coordinates on semicircle
+        function positionToCoords(position) {
+            // Position 0 = left (180°), position 1 = right (0°)
+            const angle = (1 - position) * Math.PI; // Convert to radians
+            const centerX = 300;
+            const centerY = 300;
+            const radius = 225;
+
+            return {
+                x: centerX + radius * Math.cos(angle),
+                y: centerY - radius * Math.sin(angle)
+            };
+        }
+
+        // Helper function to convert SVG coordinates to position (0-1)
+        function coordsToPosition(x, y) {
+            const centerX = 300;
+            const centerY = 300;
+            const dx = x - centerX;
+            const dy = centerY - y;
+
+            let angle = Math.atan2(dy, dx);
+            if (angle < 0) angle = 0;
+            if (angle > Math.PI) angle = Math.PI;
+
+            return 1 - (angle / Math.PI);
+        }
+
         // Game state
         let gameState = {
             team1Name: 'Team 1',
@@ -486,7 +555,9 @@
 
             // Show target marker
             const targetMarker = document.getElementById('targetMarker');
-            targetMarker.style.left = `${gameState.targetPosition * 100}%`;
+            const targetPos = positionToCoords(gameState.targetPosition);
+            targetMarker.setAttribute('cx', targetPos.x);
+            targetMarker.setAttribute('cy', targetPos.y);
             targetMarker.style.display = 'block';
 
             // Clear clue input
@@ -511,19 +582,35 @@
             document.getElementById('guessSpectrumRight').textContent = gameState.currentSpectrum.right;
             document.getElementById('clueDisplay').textContent = `Clue: "${clue}"`;
 
-            // Reset guess marker to center
-            document.getElementById('guessMarker').style.left = '50%';
+            // Reset guess marker to center (top of semicircle)
             gameState.guessPosition = 0.5;
+            const guessPos = positionToCoords(gameState.guessPosition);
+            document.getElementById('guessMarker').setAttribute('cx', guessPos.x);
+            document.getElementById('guessMarker').setAttribute('cy', guessPos.y);
         }
 
         function makeGuess(event) {
-            const spectrum = document.getElementById('guessSpectrum');
-            const rect = spectrum.getBoundingClientRect();
+            const svg = document.getElementById('guessSpectrumSvg');
+            const rect = svg.getBoundingClientRect();
+
+            // Get click position relative to SVG
             const clickX = event.clientX - rect.left;
-            const position = Math.max(0, Math.min(1, clickX / rect.width));
-            
-            gameState.guessPosition = position;
-            document.getElementById('guessMarker').style.left = `${position * 100}%`;
+            const clickY = event.clientY - rect.top;
+
+            // Scale to viewBox coordinates
+            const scaleX = 600 / rect.width;
+            const scaleY = 300 / rect.height;
+            const svgX = clickX * scaleX;
+            const svgY = clickY * scaleY;
+
+            // Convert to position
+            const position = coordsToPosition(svgX, svgY);
+            gameState.guessPosition = Math.max(0, Math.min(1, position));
+
+            // Update marker position
+            const coords = positionToCoords(gameState.guessPosition);
+            document.getElementById('guessMarker').setAttribute('cx', coords.x);
+            document.getElementById('guessMarker').setAttribute('cy', coords.y);
         }
 
         function submitGuess() {
@@ -570,11 +657,15 @@
             document.getElementById('resultClueDisplay').textContent = `Clue: "${gameState.clue}"`;
 
             const targetMarker = document.getElementById('resultTargetMarker');
-            targetMarker.style.left = `${gameState.targetPosition * 100}%`;
+            const targetPos = positionToCoords(gameState.targetPosition);
+            targetMarker.setAttribute('cx', targetPos.x);
+            targetMarker.setAttribute('cy', targetPos.y);
             targetMarker.style.display = 'block';
 
             const guessMarker = document.getElementById('resultGuessMarker');
-            guessMarker.style.left = `${gameState.guessPosition * 100}%`;
+            const guessPos = positionToCoords(gameState.guessPosition);
+            guessMarker.setAttribute('cx', guessPos.x);
+            guessMarker.setAttribute('cy', guessPos.y);
 
             const feedback = document.getElementById('accuracyFeedback');
             feedback.className = `accuracy-feedback ${accuracyClass}`;
@@ -618,23 +709,36 @@
 
         // Allow dragging the guess marker
         let isDragging = false;
-        const guessMarker = document.getElementById('guessMarker');
-        const guessSpectrum = document.getElementById('guessSpectrum');
 
-        guessMarker.addEventListener('mousedown', (e) => {
+        document.getElementById('guessMarker').addEventListener('mousedown', (e) => {
             isDragging = true;
             e.stopPropagation();
         });
 
         document.addEventListener('mousemove', (e) => {
             if (isDragging && document.getElementById('guessingView').style.display !== 'none') {
-                const spectrum = guessSpectrum;
-                const rect = spectrum.getBoundingClientRect();
-                const x = Math.max(rect.left, Math.min(rect.right, e.clientX));
-                const position = Math.max(0, Math.min(1, (x - rect.left) / rect.width));
-                
-                gameState.guessPosition = position;
-                guessMarker.style.left = `${position * 100}%`;
+                const svg = document.getElementById('guessSpectrumSvg');
+                const rect = svg.getBoundingClientRect();
+
+                // Get mouse position relative to SVG
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                // Scale to viewBox coordinates
+                const scaleX = 600 / rect.width;
+                const scaleY = 300 / rect.height;
+                const svgX = mouseX * scaleX;
+                const svgY = mouseY * scaleY;
+
+                // Convert to position
+                const position = coordsToPosition(svgX, svgY);
+                gameState.guessPosition = Math.max(0, Math.min(1, position));
+
+                // Update marker position
+                const coords = positionToCoords(gameState.guessPosition);
+                const guessMarker = document.getElementById('guessMarker');
+                guessMarker.setAttribute('cx', coords.x);
+                guessMarker.setAttribute('cy', coords.y);
             }
         });
 
