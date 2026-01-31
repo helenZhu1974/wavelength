@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wavelength - The Spectrum Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .game-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .setup-screen, .game-screen, .results-screen {
+            display: none;
+        }
+
+        .setup-screen.active, .game-screen.active, .results-screen.active {
+            display: block;
+        }
+
+        .team-setup {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .team-input {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1em;
+            width: 100%;
+        }
+
+        .team-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+        }
+
+        .spectrum-container {
+            margin: 40px 0;
+            position: relative;
+        }
+
+        .spectrum {
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(to right, #ff6b6b, #feca57, #48dbfb, #ff9ff3);
+            border-radius: 30px;
+            position: relative;
+            margin: 20px 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .spectrum-labels {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .target-marker {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border: 3px solid #333;
+            border-radius: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+
+        .guess-marker {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: #667eea;
+            border: 3px solid white;
+            border-radius: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            transition: transform 0.2s;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .guess-marker:hover {
+            transform: translate(-50%, -50%) scale(1.2);
+        }
+
+        .current-team {
+            font-size: 1.5em;
+            color: #667eea;
+            margin: 20px 0;
+            font-weight: bold;
+        }
+
+        .current-spectrum {
+            font-size: 1.3em;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .spectrum-pair {
+            display: flex;
+            justify-content: space-around;
+            font-weight: bold;
+        }
+
+        .clue-display {
+            font-size: 1.5em;
+            margin: 30px 0;
+            padding: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            min-height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .score-display {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            font-size: 1.3em;
+        }
+
+        .score {
+            padding: 15px 30px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .score-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .accuracy-feedback {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+
+        .accuracy-perfect {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .accuracy-good {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .accuracy-ok {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .accuracy-poor {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .accuracy-none {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .spectrums-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .spectrum-card {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .spectrum-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border-color: #667eea;
+        }
+
+        .instructions {
+            background: #e9ecef;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #667eea;
+        }
+
+        input[type="text"] {
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            width: 100%;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>🌊 Wavelength</h1>
+        <p class="subtitle">The Spectrum Guessing Game</p>
+
+        <!-- Setup Screen -->
+        <div class="setup-screen active" id="setupScreen">
+            <div class="team-setup">
+                <input type="text" class="team-input" id="team1Name" placeholder="Team 1 Name" value="Team 1">
+                <input type="text" class="team-input" id="team2Name" placeholder="Team 2 Name" value="Team 2">
+            </div>
+            <div class="instructions">
+                <h3>How to Play:</h3>
+                <ol>
+                    <li>Two teams take turns. One player sees a spectrum with a hidden target.</li>
+                    <li>That player gives a clue to their team about where the target is.</li>
+                    <li>The team clicks on the spectrum to guess the target's position.</li>
+                    <li>Points are awarded based on accuracy: Perfect (5pts), Good (3pts), Poor (1pt).</li>
+                    <li>First team to reach 10 points wins!</li>
+                </ol>
+            </div>
+            <button class="btn" onclick="startGame()">Start Game</button>
+        </div>
+
+        <!-- Game Screen -->
+        <div class="game-screen" id="gameScreen">
+            <div class="score-display">
+                <div class="score">
+                    <div id="team1ScoreDisplay">Team 1: <span class="score-value">0</span></div>
+                </div>
+                <div class="score">
+                    <div id="team2ScoreDisplay">Team 2: <span class="score-value">0</span></div>
+                </div>
+            </div>
+
+            <div class="current-team" id="currentTeamDisplay">Team 1's Turn</div>
+
+            <div id="clueGiverView" style="display: none;">
+                <div class="current-spectrum">
+                    <div class="spectrum-pair">
+                        <span id="spectrumLeft"></span>
+                        <span>↔</span>
+                        <span id="spectrumRight"></span>
+                    </div>
+                </div>
+                <div class="spectrum-container">
+                    <div class="spectrum" id="hiddenSpectrum">
+                        <div class="target-marker" id="targetMarker"></div>
+                    </div>
+                </div>
+                <p style="margin: 20px 0; font-size: 1.1em;">Give your team a clue about where the target is!</p>
+                <input type="text" id="clueInput" placeholder="Enter your clue here..." style="max-width: 400px;">
+                <br>
+                <button class="btn" onclick="submitClue()">Submit Clue</button>
+            </div>
+
+            <div id="guessingView" style="display: none;">
+                <div class="current-spectrum">
+                    <div class="spectrum-pair">
+                        <span id="guessSpectrumLeft"></span>
+                        <span>↔</span>
+                        <span id="guessSpectrumRight"></span>
+                    </div>
+                </div>
+                <div class="clue-display" id="clueDisplay">Waiting for clue...</div>
+                <div class="spectrum-container">
+                    <div class="spectrum" id="guessSpectrum" onclick="makeGuess(event)">
+                        <div class="guess-marker" id="guessMarker" style="left: 50%;"></div>
+                    </div>
+                    <div class="spectrum-labels">
+                        <span id="guessLeftLabel"></span>
+                        <span id="guessRightLabel"></span>
+                    </div>
+                </div>
+                <button class="btn" onclick="submitGuess()">Submit Guess</button>
+            </div>
+
+            <div id="resultsView" style="display: none;">
+                <div class="current-spectrum">
+                    <div class="spectrum-pair">
+                        <span id="resultSpectrumLeft"></span>
+                        <span>↔</span>
+                        <span id="resultSpectrumRight"></span>
+                    </div>
+                </div>
+                <div class="clue-display" id="resultClueDisplay"></div>
+                <div class="spectrum-container">
+                    <div class="spectrum" id="resultSpectrum">
+                        <div class="target-marker" id="resultTargetMarker"></div>
+                        <div class="guess-marker" id="resultGuessMarker" style="background: #28a745;"></div>
+                    </div>
+                    <div class="spectrum-labels">
+                        <span id="resultLeftLabel"></span>
+                        <span id="resultRightLabel"></span>
+                    </div>
+                </div>
+                <div id="accuracyFeedback"></div>
+                <button class="btn" onclick="nextRound()">Next Round</button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div class="results-screen" id="resultsScreen">
+            <h2 id="winnerDisplay"></h2>
+            <div class="score-display" style="margin: 40px 0;">
+                <div class="score">
+                    <div class="score-value" id="finalTeam1Score">0</div>
+                    <div id="finalTeam1Name">Team 1</div>
+                </div>
+                <div class="score">
+                    <div class="score-value" id="finalTeam2Score">0</div>
+                    <div id="finalTeam2Name">Team 2</div>
+                </div>
+            </div>
+            <button class="btn" onclick="resetGame()">Play Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let gameState = {
+            team1Name: 'Team 1',
+            team2Name: 'Team 2',
+            team1Score: 0,
+            team2Score: 0,
+            currentTeam: 1, // 1 or 2
+            currentSpectrum: null,
+            targetPosition: 0,
+            clue: '',
+            guessPosition: 0.5,
+            gamePhase: 'setup' // setup, clue, guessing, results
+        };
+
+        // Spectrum pairs for the game
+        const spectrums = [
+            { left: 'Hot', right: 'Cold' },
+            { left: 'Common', right: 'Rare' },
+            { left: 'Fantasy', right: 'Sci-Fi' },
+            { left: 'Quiet', right: 'Loud' },
+            { left: 'Cheap', right: 'Expensive' },
+            { left: 'Cute', right: 'Scary' },
+            { left: 'Simple', right: 'Complex' },
+            { left: 'Local', right: 'Global' },
+            { left: 'Safe', right: 'Dangerous' },
+            { left: 'Soft', right: 'Hard' },
+            { left: 'Sweet', right: 'Salty' },
+            { left: 'Traditional', right: 'Modern' },
+            { left: 'Wet', right: 'Dry' },
+            { left: 'Fast', right: 'Slow' },
+            { left: 'Light', right: 'Heavy' },
+            { left: 'Sour', right: 'Sweet' },
+            { left: 'Small', right: 'Large' },
+            { left: 'Peaceful', right: 'Chaotic' },
+            { left: 'Bright', right: 'Dark' },
+            { left: 'Clean', right: 'Messy' }
+        ];
+
+        function startGame() {
+            gameState.team1Name = document.getElementById('team1Name').value || 'Team 1';
+            gameState.team2Name = document.getElementById('team2Name').value || 'Team 2';
+            gameState.team1Score = 0;
+            gameState.team2Score = 0;
+            gameState.currentTeam = 1;
+
+            document.getElementById('team1ScoreDisplay').innerHTML = `${gameState.team1Name}: <span class="score-value">0</span>`;
+            document.getElementById('team2ScoreDisplay').innerHTML = `${gameState.team2Name}: <span class="score-value">0</span>`;
+
+            document.getElementById('setupScreen').classList.remove('active');
+            document.getElementById('gameScreen').classList.add('active');
+
+            startRound();
+        }
+
+        function startRound() {
+            // Select random spectrum
+            const randomIndex = Math.floor(Math.random() * spectrums.length);
+            gameState.currentSpectrum = spectrums[randomIndex];
+            
+            // Random target position (0 to 1)
+            gameState.targetPosition = Math.random();
+
+            // Reset guess position
+            gameState.guessPosition = 0.5;
+            gameState.clue = '';
+
+            // Update displays
+            const teamName = gameState.currentTeam === 1 ? gameState.team1Name : gameState.team2Name;
+            document.getElementById('currentTeamDisplay').textContent = `${teamName}'s Turn`;
+
+            // Show clue giver view
+            document.getElementById('clueGiverView').style.display = 'block';
+            document.getElementById('guessingView').style.display = 'none';
+            document.getElementById('resultsView').style.display = 'none';
+
+            // Set spectrum for clue giver
+            document.getElementById('spectrumLeft').textContent = gameState.currentSpectrum.left;
+            document.getElementById('spectrumRight').textContent = gameState.currentSpectrum.right;
+
+            // Show target marker
+            const targetMarker = document.getElementById('targetMarker');
+            targetMarker.style.left = `${gameState.targetPosition * 100}%`;
+            targetMarker.style.display = 'block';
+
+            // Clear clue input
+            document.getElementById('clueInput').value = '';
+        }
+
+        function submitClue() {
+            const clue = document.getElementById('clueInput').value.trim();
+            if (!clue) {
+                alert('Please enter a clue!');
+                return;
+            }
+
+            gameState.clue = clue;
+
+            // Switch to guessing view
+            document.getElementById('clueGiverView').style.display = 'none';
+            document.getElementById('guessingView').style.display = 'block';
+
+            // Set spectrum for guessers
+            document.getElementById('guessSpectrumLeft').textContent = gameState.currentSpectrum.left;
+            document.getElementById('guessSpectrumRight').textContent = gameState.currentSpectrum.right;
+            document.getElementById('guessLeftLabel').textContent = gameState.currentSpectrum.left;
+            document.getElementById('guessRightLabel').textContent = gameState.currentSpectrum.right;
+            document.getElementById('clueDisplay').textContent = `Clue: "${clue}"`;
+
+            // Reset guess marker to center
+            document.getElementById('guessMarker').style.left = '50%';
+            gameState.guessPosition = 0.5;
+        }
+
+        function makeGuess(event) {
+            const spectrum = document.getElementById('guessSpectrum');
+            const rect = spectrum.getBoundingClientRect();
+            const clickX = event.clientX - rect.left;
+            const position = Math.max(0, Math.min(1, clickX / rect.width));
+            
+            gameState.guessPosition = position;
+            document.getElementById('guessMarker').style.left = `${position * 100}%`;
+        }
+
+        function submitGuess() {
+            // Calculate accuracy
+            const distance = Math.abs(gameState.guessPosition - gameState.targetPosition);
+            let points = 0;
+            let accuracyClass = '';
+            let accuracyText = '';
+
+            if (distance <= 0.05) {
+                points = 5;
+                accuracyClass = 'accuracy-perfect';
+                accuracyText = 'Perfect! 5 points! 🎯';
+            } else if (distance <= 0.10) {
+                points = 3;
+                accuracyClass = 'accuracy-good';
+                accuracyText = 'Great! 3 points! 👏';
+            } else if (distance <= 0.15) {
+                points = 1;
+                accuracyClass = 'accuracy-ok';
+                accuracyText = 'Good! 1 points! 👍';
+            } else {
+                points = 0;
+                accuracyClass = 'accuracy-none';
+                accuracyText = 'Too far off! 0 points! 😞';
+            }
+
+            // Add points (only if > 0)
+            if (points > 0) {
+                if (gameState.currentTeam === 1) {
+                    gameState.team1Score += points;
+                } else {
+                    gameState.team2Score += points;
+                }
+            }
+
+            // Show results
+            document.getElementById('guessingView').style.display = 'none';
+            document.getElementById('resultsView').style.display = 'block';
+
+            // Update result display
+            document.getElementById('resultSpectrumLeft').textContent = gameState.currentSpectrum.left;
+            document.getElementById('resultSpectrumRight').textContent = gameState.currentSpectrum.right;
+            document.getElementById('resultLeftLabel').textContent = gameState.currentSpectrum.left;
+            document.getElementById('resultRightLabel').textContent = gameState.currentSpectrum.right;
+            document.getElementById('resultClueDisplay').textContent = `Clue: "${gameState.clue}"`;
+
+            const targetMarker = document.getElementById('resultTargetMarker');
+            targetMarker.style.left = `${gameState.targetPosition * 100}%`;
+            targetMarker.style.display = 'block';
+
+            const guessMarker = document.getElementById('resultGuessMarker');
+            guessMarker.style.left = `${gameState.guessPosition * 100}%`;
+
+            const feedback = document.getElementById('accuracyFeedback');
+            feedback.className = `accuracy-feedback ${accuracyClass}`;
+            feedback.textContent = accuracyText;
+
+            // Update scores
+            document.getElementById('team1ScoreDisplay').innerHTML = `${gameState.team1Name}: <span class="score-value">${gameState.team1Score}</span>`;
+            document.getElementById('team2ScoreDisplay').innerHTML = `${gameState.team2Name}: <span class="score-value">${gameState.team2Score}</span>`;
+
+            // Check for winner
+            if (gameState.team1Score >= 10 || gameState.team2Score >= 10) {
+                setTimeout(() => {
+                    showWinner();
+                }, 2000);
+            }
+        }
+
+        function showWinner() {
+            document.getElementById('gameScreen').classList.remove('active');
+            document.getElementById('resultsScreen').classList.add('active');
+
+            const winner = gameState.team1Score >= 10 ? gameState.team1Name : gameState.team2Name;
+            document.getElementById('winnerDisplay').textContent = `${winner} Wins! 🎉`;
+            document.getElementById('finalTeam1Score').textContent = gameState.team1Score;
+            document.getElementById('finalTeam2Score').textContent = gameState.team2Score;
+            document.getElementById('finalTeam1Name').textContent = gameState.team1Name;
+            document.getElementById('finalTeam2Name').textContent = gameState.team2Name;
+        }
+
+        function nextRound() {
+            // Switch teams
+            gameState.currentTeam = gameState.currentTeam === 1 ? 2 : 1;
+            startRound();
+        }
+
+        function resetGame() {
+            document.getElementById('resultsScreen').classList.remove('active');
+            document.getElementById('setupScreen').classList.add('active');
+            gameState.gamePhase = 'setup';
+        }
+
+        // Allow dragging the guess marker
+        let isDragging = false;
+        const guessMarker = document.getElementById('guessMarker');
+        const guessSpectrum = document.getElementById('guessSpectrum');
+
+        guessMarker.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            e.stopPropagation();
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging && document.getElementById('guessingView').style.display !== 'none') {
+                const spectrum = guessSpectrum;
+                const rect = spectrum.getBoundingClientRect();
+                const x = Math.max(rect.left, Math.min(rect.right, e.clientX));
+                const position = Math.max(0, Math.min(1, (x - rect.left) / rect.width));
+                
+                gameState.guessPosition = position;
+                guessMarker.style.left = `${position * 100}%`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+    </script>
+</body>
+</html>
